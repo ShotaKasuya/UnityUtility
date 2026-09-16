@@ -1,0 +1,11 @@
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator\bin\Debug\netstandard2.0\SerializableGenerator.deps.json
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator\bin\Debug\netstandard2.0\SerializableGenerator.dll
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator\bin\Debug\netstandard2.0\SerializableGenerator.pdb
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator\obj\Debug\netstandard2.0\SerializableGenerator.csproj.AssemblyReference.cache
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator\obj\Debug\netstandard2.0\SerializableGenerator.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator\obj\Debug\netstandard2.0\SerializableGenerator.AssemblyInfoInputs.cache
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator\obj\Debug\netstandard2.0\SerializableGenerator.AssemblyInfo.cs
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator\obj\Debug\netstandard2.0\SerializableGenerator.csproj.CoreCompileInputs.cache
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator\obj\Debug\netstandard2.0\SerializableGenerator.sourcelink.json
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator\obj\Debug\netstandard2.0\SerializableGenerator.dll
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator\obj\Debug\netstandard2.0\SerializableGenerator.pdb

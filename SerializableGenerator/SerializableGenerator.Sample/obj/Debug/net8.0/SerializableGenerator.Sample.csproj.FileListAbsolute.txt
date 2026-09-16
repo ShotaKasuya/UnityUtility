@@ -1,0 +1,12 @@
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator.Sample\bin\Debug\net8.0\SerializableGenerator.Sample.deps.json
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator.Sample\bin\Debug\net8.0\SerializableGenerator.Sample.dll
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator.Sample\bin\Debug\net8.0\SerializableGenerator.Sample.pdb
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator.Sample\obj\Debug\net8.0\SerializableGenerator.Sample.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator.Sample\obj\Debug\net8.0\SerializableGenerator.Sample.AssemblyInfoInputs.cache
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator.Sample\obj\Debug\net8.0\SerializableGenerator.Sample.AssemblyInfo.cs
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator.Sample\obj\Debug\net8.0\SerializableGenerator.Sample.csproj.CoreCompileInputs.cache
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator.Sample\obj\Debug\net8.0\SerializableGenerator.Sample.sourcelink.json
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator.Sample\obj\Debug\net8.0\SerializableGenerator.Sample.dll
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator.Sample\obj\Debug\net8.0\refint\SerializableGenerator.Sample.dll
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator.Sample\obj\Debug\net8.0\SerializableGenerator.Sample.pdb
+C:\Users\tmp19\_CodeDesktop\Unity\GitPackage\UnityUtility\SerializableGenerator\SerializableGenerator.Sample\obj\Debug\net8.0\ref\SerializableGenerator.Sample.dll

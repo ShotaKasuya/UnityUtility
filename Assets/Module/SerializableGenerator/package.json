@@ -1,0 +1,6 @@
+﻿{
+  "name": "com.kasuya.serializable_generator",
+  "version": "v0.1.0",
+  "displayName": "serializable_generator",
+  "description": "my serializable source generator impl"
+}
