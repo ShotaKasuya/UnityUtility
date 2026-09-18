@@ -76,6 +76,23 @@ public class SerdeTypeGenerator : IIncrementalGenerator
             return;
         }
 
+        if (HasValueCycle(symbol, new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default)))
+        {
+            context.ReportDiagnostic(Diagnostic.Create(s_RecursiveLayoutError,
+                symbol.Locations.FirstOrDefault(), originalTypeName));
+            return;
+        }
+
+        foreach (var member in memberList)
+        {
+            if (!TryGetSerializedType(member.Type, out _))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(s_UnsupportedMemberError,
+                    member.Symbol.Locations.FirstOrDefault(), member.VariableName, member.Type.ToDisplayString()));
+                return;
+            }
+        }
+
         var sourceCode = new StringWriter();
         var code = new IndentedTextWriter(sourceCode);
 
@@ -132,7 +149,7 @@ public class SerdeTypeGenerator : IIncrementalGenerator
             code.WriteLine("}");
         }
 
-        context.AddSource($"{generatedName}.g.cs", sourceCode.ToString());
+        context.AddSource($"{namespaceName}.{generatedName}.g.cs", sourceCode.ToString());
     }
 
     private static bool IsAccessible(ISymbol symbol, bool withinOriginalType) =>
@@ -156,14 +173,17 @@ public class SerdeTypeGenerator : IIncrementalGenerator
         IMethodSymbol constructor, List<FieldPair> members, string source)
     {
         var arguments = constructor.Parameters.Select(parameter =>
-            $"{source}.@{members.First(member => MatchesParameter(member, parameter)).VariableName}");
+        {
+            var member = members.First(field => MatchesParameter(field, parameter));
+            return ConvertToOriginal(member.Type, $"{source}.@{member.VariableName}");
+        });
         code.WriteLine($"return new {originalTypeName}({string.Join(", ", arguments)})");
         code.WriteLine("{");
         code.Indent++;
         foreach (var member in members)
         {
             if (!constructor.Parameters.Any(parameter => MatchesParameter(member, parameter)))
-                code.WriteLine($"@{member.VariableName} = {source}.@{member.VariableName},");
+                code.WriteLine($"@{member.VariableName} = {ConvertToOriginal(member.Type, $"{source}.@{member.VariableName}")},");
         }
 
         code.Indent--;
@@ -174,8 +194,118 @@ public class SerdeTypeGenerator : IIncrementalGenerator
     {
         public readonly ITypeSymbol Type = type;
         public readonly ISymbol Symbol = symbol;
-        public string TypeName => Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        public string TypeName
+        {
+            get
+            {
+                TryGetSerializedType(Type, out var name);
+                return name;
+            }
+        }
         public string VariableName => Symbol.Name;
+    }
+
+    private static bool HasSerdeAttribute(ITypeSymbol type) => type.GetAttributes().Any(attribute =>
+        attribute.AttributeClass?.ToDisplayString() == "SerializableGenerator." + k_AttrName);
+
+    private static readonly SymbolDisplayFormat s_TypeFormat = SymbolDisplayFormat.FullyQualifiedFormat
+        .WithMiscellaneousOptions(SymbolDisplayFormat.FullyQualifiedFormat.MiscellaneousOptions |
+                                  SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
+
+    private static bool ContainsSerdeType(ITypeSymbol type) => HasSerdeAttribute(type) || type switch
+    {
+        IArrayTypeSymbol array => ContainsSerdeType(array.ElementType),
+        INamedTypeSymbol named => named.TypeArguments.Any(ContainsSerdeType),
+        _ => false
+    };
+
+    private static bool IsList(INamedTypeSymbol type) =>
+        type.OriginalDefinition.ToDisplayString() == "System.Collections.Generic.List<T>";
+
+    // Descend through containers; every attributed type has its own generator invocation.
+    private static bool TryGetSerializedType(ITypeSymbol type, out string name)
+    {
+        name = type.ToDisplayString(s_TypeFormat);
+        if (!ContainsSerdeType(type)) return true;
+
+        if (HasSerdeAttribute(type))
+        {
+            if (type is not INamedTypeSymbol { Arity: 0, ContainingType: null }) return false;
+            var prefix = type.ContainingNamespace.IsGlobalNamespace
+                ? "global::"
+                : $"global::{type.ContainingNamespace.ToDisplayString()}.";
+            name = prefix + k_GenTypePrefix + type.Name;
+            if (type.IsReferenceType && type.NullableAnnotation == NullableAnnotation.Annotated)
+                name += "?";
+            return true;
+        }
+
+        if (type is IArrayTypeSymbol { Rank: 1, IsSZArray: true } array &&
+            TryGetSerializedType(array.ElementType, out var elementName))
+        {
+            name = elementName + "[]" + NullableSuffix(type);
+            return true;
+        }
+
+        if (type is INamedTypeSymbol named && named.TypeArguments.Length == 1 &&
+            TryGetSerializedType(named.TypeArguments[0], out var argumentName))
+        {
+            if (named.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+            {
+                name = argumentName + "?";
+                return true;
+            }
+            if (IsList(named))
+            {
+                name = $"global::System.Collections.Generic.List<{argumentName}>" + NullableSuffix(type);
+                return true;
+            }
+        }
+
+        // Arbitrary generic containers cannot be reconstructed by replacing type arguments alone.
+        return false;
+    }
+
+    private static string NullableSuffix(ITypeSymbol type) =>
+        type.NullableAnnotation == NullableAnnotation.Annotated ? "?" : "";
+
+    private static string ConvertToOriginal(ITypeSymbol type, string expression, int depth = 0)
+    {
+        if (!ContainsSerdeType(type)) return expression;
+        if (HasSerdeAttribute(type))
+            return expression + (type.IsReferenceType &&
+                                 type.NullableAnnotation == NullableAnnotation.Annotated
+                ? "?.ToOriginal()"
+                : ".ToOriginal()");
+
+        if (type is INamedTypeSymbol nullable &&
+            nullable.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+            return $"({expression}.HasValue ? ({type.ToDisplayString(s_TypeFormat)})" +
+                   ConvertToOriginal(nullable.TypeArguments[0], expression + ".Value", depth) + " : null)";
+
+        var item = "__item" + depth;
+        var elementType = type is IArrayTypeSymbol array
+            ? array.ElementType
+            : ((INamedTypeSymbol)type).TypeArguments[0];
+        var select = $"global::System.Linq.Enumerable.Select({expression}, {item} => " +
+                     ConvertToOriginal(elementType, item, depth + 1) + ")";
+        var method = type is IArrayTypeSymbol ? "ToArray" : "ToList";
+        var materialized = $"global::System.Linq.Enumerable.{method}({select})";
+        return $"({expression} is null ? null{(NullableSuffix(type) == "" ? "!" : "")} : {materialized})";
+    }
+
+    // Direct recursive struct fields (including Nullable<T>) have infinite size.
+    // Arrays and lists introduce indirection and therefore terminate this layout check.
+    private static bool HasValueCycle(ITypeSymbol type, HashSet<ITypeSymbol> path)
+    {
+        if (type is INamedTypeSymbol nullable &&
+            nullable.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+            return HasValueCycle(nullable.TypeArguments[0], path);
+        if (type is not INamedTypeSymbol named || !HasSerdeAttribute(type)) return false;
+        if (!path.Add(type)) return true;
+        var result = GetFields(named).Any(member => HasValueCycle(member.Type, path));
+        path.Remove(type);
+        return result;
     }
 
     private static List<FieldPair> GetFields(INamedTypeSymbol symbol)
@@ -210,6 +340,16 @@ public class SerdeTypeGenerator : IIncrementalGenerator
     private static readonly DiagnosticDescriptor s_ConversionError = new(
         "SERDE001", "Cannot generate conversion",
         "Cannot generate ToOriginal for '{0}'. Use a non-abstract, non-generic, top-level type with a matching constructor and writable members; declare the type partial to access private members.",
+        "SerializableGenerator", DiagnosticSeverity.Error, true);
+
+    private static readonly DiagnosticDescriptor s_UnsupportedMemberError = new(
+        "SERDE002", "Unsupported serialized member",
+        "Member '{0}' has unsupported type '{1}'. Serde types can be used directly, in one-dimensional arrays, List<T>, or Nullable<T>.",
+        "SerializableGenerator", DiagnosticSeverity.Error, true);
+
+    private static readonly DiagnosticDescriptor s_RecursiveLayoutError = new(
+        "SERDE003", "Recursive serialized struct layout",
+        "Type '{0}' contains a direct Serde type cycle. Use an array or List<T> to introduce indirection between generated structs.",
         "SerializableGenerator", DiagnosticSeverity.Error, true);
 
     private const string k_AttrImpl = """
