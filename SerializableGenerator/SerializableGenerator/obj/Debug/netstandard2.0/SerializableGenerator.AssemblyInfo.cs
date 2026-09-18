@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SerializableGenerator")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b6acd8b7103424da4e0ba7e47d71cc3915423541")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fab1ff9f2ec7c8a85ce359626b06fcc82d8b4cb0")]
 [assembly: System.Reflection.AssemblyProductAttribute("SerializableGenerator")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SerializableGenerator")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

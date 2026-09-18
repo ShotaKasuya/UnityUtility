@@ -360,7 +360,7 @@ public class SerdeTypeGenerator : IIncrementalGenerator
                                       namespace SerializableGenerator
                                       {
                                           [global::System.AttributeUsage(global::System.AttributeTargets.Class | global::System.AttributeTargets.Struct, AllowMultiple = false)]
-                                          internal sealed class SerdeTypeAttribute : global::System.Attribute { }
+                                          public sealed class SerdeTypeAttribute : global::System.Attribute { }
                                       }
                                       """;
 }

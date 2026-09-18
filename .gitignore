@@ -63,4 +63,5 @@ crashlytics-build.properties
 
 
 .idea/
+/obj
 SerializableGenerator/**/*.dll
